@@ -37,7 +37,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def response_message(event):
     print('response_message has called')
-    print('userId : {0}'.format(event.source.userId))
+    print('userId : {0}'.format(event.source.user_id))
     # 返信メッセージ
     line_bot_api.reply_message(
     event.reply_token,
@@ -46,7 +46,7 @@ def response_message(event):
 @handler.add(FollowEvent)
 def followed_message(event):
     print('followed_message has called')
-    print('userId : {0}'.format(event.source.userId))
+    print('userId : {0}'.format(event.source.user_id))
     # フォローされた場合にメッセージを送信する
     message = TextSendMessage(text='フォローありがとうございます！')
     line_bot_api.reply_message(event.reply_token, messages=message)
