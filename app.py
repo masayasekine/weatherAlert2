@@ -53,6 +53,13 @@ def followed_message(event):
 
     # TODO:DB登録処理を追加する
 
+def push_message():
+    user_id = "U75a1e09719ff2f7e2cbfeaf77ebb3039"
+    print('push_message has called')
+    print('userId : user_id')
+
+    messages = TextSendMessage(text='テスト用のPUSHメッセージです')
+    line_bot_api.push_message(user_id, messages=messages)
 
 
 if __name__ == "__main__":
