@@ -36,6 +36,8 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def response_message(event):
+    print('response_message has called')
+    print('userId : {0}'.format(event.source.userId))
     # 返信メッセージ
     line_bot_api.reply_message(
     event.reply_token,
@@ -43,9 +45,11 @@ def response_message(event):
 
 @handler.add(FollowEvent)
 def followed_message(event):
+    print('followed_message has called')
+    print('userId : {0}'.format(event.source.userId))
     # フォローされた場合にメッセージを送信する
     message = TextSendMessage(text='フォローありがとうございます！')
-    line_bot_api.push_message(event.source.userId, messages=message)
+    line_bot_api.reply_message(event.reply_token, messages=message)
 
     # TODO:DB登録処理を追加する
 
