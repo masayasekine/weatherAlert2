@@ -1,4 +1,5 @@
 import os
+import datetime
 
 from flask import Flask, request, abort
 from linebot import (
@@ -17,6 +18,8 @@ LINE_CHANNEL_SECRET = os.environ["LINE_CHANNEL_SECRET"]
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(LINE_CHANNEL_SECRET)
+
+dt_now = datetime.datetime.now()
 
 
 @app.route("/callback", methods=['POST'])
@@ -48,7 +51,7 @@ def followed_message(event):
     print('followed_message has called')
     print('userId : {0}'.format(event.source.user_id))
     # フォローされた場合にメッセージを送信する
-    message = TextSendMessage(text='フォローありがとうございます！')
+    message = TextSendMessage(text='フォローありがとうございます')
     line_bot_api.reply_message(event.reply_token, messages=message)
 
     # TODO:DB登録処理を追加する
@@ -58,7 +61,7 @@ def push_message():
     print('push_message has called')
     print('userId : user_id')
 
-    messages = TextSendMessage(text='テスト用のPUSHメッセージです')
+    messages = TextSendMessage(text='テスト用のPUSHメッセージです\n\n現在の日時:{}'.format(dt_now.strftime('%Y年%m月%d日 %H:%M:%S')))
     line_bot_api.push_message(user_id, messages=messages)
 
 
