@@ -8,7 +8,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TemplateSendMessage, CarouselTemplate, CarouselColumn, TextSendMessage)
+    MessageEvent, TextMessage, TextSendMessage, FollowEvent)
 
 app = Flask(__name__)
 
@@ -40,6 +40,15 @@ def response_message(event):
     line_bot_api.reply_message(
     event.reply_token,
     TextSendMessage(text=event.message.text))
+
+@handler.add(FollowEvent)
+def followed_message(event):
+    # フォローされた場合にメッセージを送信する
+    message = TextSendMessage(text='フォローありがとうございます！')
+    line_bot_api.push_message(event.source.userId, messages=message)
+
+    # TODO:DB登録処理を追加する
+
 
 
 if __name__ == "__main__":
