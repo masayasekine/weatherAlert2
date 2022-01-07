@@ -6,8 +6,8 @@ import datetime
 import os
 
 database_file = os.path.join(os.path.abspath(os.path.dirname(__file__)),'data.db')
-
-engine = create_engine('postgresql://postgres:jamsekine618@localhost:5433/postgres')
+DATABASE_URL = os.environ.get('DATABASE_URL') or 'postgresql://postgres:jamsekine618@localhost:5433/postgres'
+engine = create_engine(DATABASE_URL)
 
 #declarative_baseのインスタンス生成する
 Base = declarative_base()
