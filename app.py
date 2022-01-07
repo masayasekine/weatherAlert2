@@ -63,7 +63,7 @@ def followed_message(event):
 def response_message(event):
     message = event.message.text
     # メッセージが登録県変更かどうか確認
-    area = session.query(Areas).filter_by(prefecture_name=event).first()
+    area = session.query(Areas).filter_by(prefecture_name=message).first()
     if message == '都道府県一覧':
         areas = session.query(Areas).all()
         for area in areas:
