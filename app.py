@@ -57,16 +57,22 @@ def followed_message(event):
     line_bot_api.reply_message(event.reply_token, messages=message)
 
     # DB登録処理
-    row = Users(user_id=event.source.user_id)
-    # TODO: ユーザ情報取得API -> https://developers.line.biz/ja/reference/messaging-api/#get-profile
-    session.add(row)
-    session.commit()
+    profile = line_bot_api.get_profile(event.source.user_id)
+    user = session.query(Users).get(profile.user_id)
+    # ユーザーがDBに登録されていない場合は新規登録
+    if user is None:
+        row = Users(user_id=profile.user_id, name=profile.display_name)
+        session.add(row)
+        session.commit()
+    # DBに登録済の場合、情報を更新
+    else:
+        user.user_id = profile.user_id
+        user.name = profile.display_name
+        user.del_flag = False
+        session.commit()
 
 
 def push_message():
-    # user_id = "U75a1e09719ff2f7e2cbfeaf77ebb3039"
-    print('push_message has called')
-    print('userId : user_id')
 
     # 当日の天気予報を取得
     weather = wr.getWeatherReport()
@@ -74,28 +80,21 @@ def push_message():
     # 全ユーザー取得
     users = session.query(Users).all()
     for user in users:
+        if user.del_flag:
+            continue
+
         user_id = user.user_id
+        # DB登録時から情報が変更されている可能性があるので、チェックを実施する
+        profile = line_bot_api.get_profile(user_id)
+        if user.name != profile.display_name:
+            user.name = profile.display_name
+            session.commit()
+
         messages = TextSendMessage(text=(
             '{0}さん、おはようございます！\n'\
             'テスト用のPUSHメッセージです\n\n現在の日時:{1}\n\n本日の千葉の天気\n{2}'
-            ).format(user.name, dt_now.strftime('%Y年%m月%d日 %H:%M:%S'), weather))
+            ).format(profile.display_name, dt_now.strftime('%Y年%m月%d日 %H:%M:%S'), weather))
         line_bot_api.push_message(user_id, messages=messages)
-
-
-    # user = session.query(User).get(user_id)
-    # if (user is None):
-    #     print('userは未登録です')
-    # else:
-    #     print('userは登録済みです\n')
-    #     print('userId:' + user.user_id)
-    # for user in users:
-    #     print('userId:' + user.user_id)
-    #     if (user.del_flag):
-    #         print('del_flag:true')
-    #     else:
-    #         print('del_flag:false')
-
-    
 
 
 if __name__ == "__main__":

@@ -7,7 +7,6 @@ def getWeatherReport():
     area_code = '120000'
 
     url = 'https://www.jma.go.jp/bosai/forecast/data/forecast/{0}.json'.format(area_code)
-    print(url)
     json = requests.get(url).json()
 
     report = ''
@@ -16,7 +15,7 @@ def getWeatherReport():
         name = area['area']['name']
         weather = area['weathers'][1]
         report += name + ': ' + weather + '\n'
-    print(report)
+
     return report
 
 
