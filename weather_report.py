@@ -1,5 +1,7 @@
 import requests
 import json
+from assets.database import session
+from assets.models import Areas
 
 def getWeatherReport(day):
     # 千葉県
@@ -44,3 +46,12 @@ def getPopsReport():
         report += '最低気温: ' + tmps[0] + '℃, '
         report += '最高気温: ' + tmps[1] + '℃\n'
     return report
+
+def getAreas():
+    url = 'https://www.jma.go.jp/bosai/common/const/area.json'
+    json = requests.get(url).json()
+    keys = json['offices'].keys()
+    for key in keys:
+        row = Areas(area_code=key, prefecture_name=json['offices'][key]['name'])
+        session.add(row)
+        session.commit()

@@ -11,7 +11,7 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, FollowEvent)
 from assets.database import session
-from assets.models import Users
+from assets.models import Users,Areas
 
 app = Flask(__name__)
 
@@ -61,11 +61,24 @@ def followed_message(event):
 
 @handler.add(MessageEvent, message=TextMessage)
 def response_message(event):
-    # 翌日の天気予報を取得
-    weather = wr.getWeatherReport(1)
-    # 返信メッセージ
-    messages = TextSendMessage(text=('明日の千葉の天気をお知らせします\n{0}').format(weather))
-    line_bot_api.reply_message(event.reply_token,messages)
+    message = event.message.text
+    # メッセージが登録県変更かどうか確認
+    area = session.query(Areas).filter_by(prefecture_name=event).first()
+    if message == '都道府県一覧':
+        areas = session.query(Areas).all()
+        for area in areas:
+            print(area.prefecture_name + '\n')
+    elif area is None:
+        # 翌日の天気予報を取得
+        weather = wr.getWeatherReport(1)
+        # 返信メッセージ
+        messages = TextSendMessage(text=('明日の千葉の天気をお知らせします\n{0}').format(weather))
+        line_bot_api.reply_message(event.reply_token,messages)
+        messages = TextSendMessage(text=('ご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します'))
+    else :
+        user = session.query(Users).get(event.source.user_id)
+        user.area_code = area.area_code
+        messages = TextSendMessage(text=('ご登録の都道府県を変更しました。\n変更後:{0}').format(area.prefecture_name))
 
 def push_message():
 
@@ -94,9 +107,12 @@ def push_message():
 def user_all():
     users = session.query(Users).all()
     for user in users:
+        area = session.query(Areas).get(user.area_code)
         print('==============================')
         print('user_id: ' + user.user_id)
         print('name: ' + user.name)
+        print('area_code: ' + user.area_code)
+        print('area: ' + area.prefecture_name)
         print('==============================')
 
 def user_insert():
