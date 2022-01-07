@@ -70,7 +70,7 @@ def response_message(event):
 def push_message():
 
     # 当日の天気予報を取得
-    weather = wr.getWeatherReport(0)
+    weather = wr.getPopsReport()
 
     # 全ユーザー取得
     users = session.query(Users).all()
@@ -100,7 +100,7 @@ def user_all():
         print('==============================')
 
 def user_insert():
-    row = Users(user_id='U75a1e09719ff2f7e2cbfeaf77ebb3039', name='sekine')
+    row = Users(user_id='U75a1e09719ff2f7e2cbfeaf77ebb3039', name='sekine', area_code='120000')
     session.add(row)
     session.commit()
 

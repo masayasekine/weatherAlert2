@@ -9,6 +9,3 @@ class Users(Base):
     name = Column(String,unique=False)
     area_code = Column(String,unique=False)
     del_flag = Column(Boolean,unique=False,default=False)
-
-    def area_code(self):
-        return '{self.area_code}'
