@@ -11,7 +11,7 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, FollowEvent)
 from assets.database import session
-from assets.models import User
+from assets.models import Users
 
 app = Flask(__name__)
 
@@ -57,7 +57,7 @@ def followed_message(event):
     line_bot_api.reply_message(event.reply_token, messages=message)
 
     # DB登録処理
-    row = User(user_id=event.source.user_id)
+    row = Users(user_id=event.source.user_id)
     # TODO: ユーザ情報取得API -> https://developers.line.biz/ja/reference/messaging-api/#get-profile
     session.add(row)
     session.commit()
@@ -72,7 +72,7 @@ def push_message():
     weather = wr.getWeatherReport()
 
     # 全ユーザー取得
-    users = session.query(User).all()
+    users = session.query(Users).all()
     for user in users:
         user_id = user.user_id
         messages = TextSendMessage(text=(
