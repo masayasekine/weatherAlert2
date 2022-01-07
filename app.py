@@ -40,11 +40,9 @@ def callback():
 
 @handler.add(FollowEvent)
 def followed_message(event):
-    print('followed_message has called')
-    print('userId : {0}'.format(event.source.user_id))
-    # フォローされた場合にメッセージを送信する
-    message = TextSendMessage(text='フォローありがとうございます')
-    line_bot_api.reply_message(event.reply_token, messages=message)
+    # # フォローされた場合にメッセージを送信する(定型文を設定しているのでコメントアウト)
+    # message = TextSendMessage(text='フォローありがとうございます')
+    # line_bot_api.reply_message(event.reply_token, messages=message)
 
     # DB登録処理
     profile = line_bot_api.get_profile(event.source.user_id)
@@ -68,8 +66,6 @@ def response_message(event):
     # 返信メッセージ
     messages = TextSendMessage(text=('明日の千葉の天気をお知らせします\n{0}').format(weather))
     line_bot_api.reply_message(event.reply_token,messages)
-
-
 
 def push_message():
 
