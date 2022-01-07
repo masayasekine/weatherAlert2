@@ -64,21 +64,40 @@ def response_message(event):
     message = event.message.text
     # メッセージが登録県変更かどうか確認
     area = session.query(Areas).filter_by(prefecture_name=message).first()
+    profile = line_bot_api.get_profile(event.source.user_id)
+    user = session.query(Users).get(event.source.user_id)
+    # ユーザー存在チェック
+    if user is None:
+        row = Users(user_id=profile.user_id, name=profile.display_name)
+        session.add(row)
+        session.commit()
+    # DBに登録済の場合、情報を更新
+    else:
+        user.user_id = profile.user_id
+        user.name = profile.display_name
+        user.del_flag = False
+        session.commit()
     if message == '都道府県一覧':
         areas = session.query(Areas).all()
+        rep = ''
         for area in areas:
-            print(area.prefecture_name + '\n')
+            rep += area.prefecture_name + '\n'
+        messages = TextSendMessage(text=rep)
+        line_bot_api.reply_message(event.reply_token,messages)
     elif area is None:
         # 翌日の天気予報を取得
         weather = wr.getWeatherReport(1)
         # 返信メッセージ
-        messages = TextSendMessage(text=('明日の千葉の天気をお知らせします\n{0}').format(weather))
+        messages = TextSendMessage(text=('明日の千葉の天気をお知らせします\n{0}\nご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します').format(weather))
         line_bot_api.reply_message(event.reply_token,messages)
         messages = TextSendMessage(text=('ご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します'))
     else :
-        user = session.query(Users).get(event.source.user_id)
         user.area_code = area.area_code
+        session.commit()
         messages = TextSendMessage(text=('ご登録の都道府県を変更しました。\n変更後:{0}').format(area.prefecture_name))
+        line_bot_api.reply_message(event.reply_token,messages)
+
+
 
 def push_message():
 
