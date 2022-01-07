@@ -38,16 +38,6 @@ def callback():
 
     return 'OK'
 
-
-@handler.add(MessageEvent, message=TextMessage)
-def response_message(event):
-    print('response_message has called')
-    print('userId : {0}'.format(event.source.user_id))
-    # 返信メッセージ
-    line_bot_api.reply_message(
-    event.reply_token,
-    TextSendMessage(text=event.message.text))
-
 @handler.add(FollowEvent)
 def followed_message(event):
     print('followed_message has called')
@@ -71,11 +61,20 @@ def followed_message(event):
         user.del_flag = False
         session.commit()
 
+@handler.add(MessageEvent, message=TextMessage)
+def response_message(event):
+    # 翌日の天気予報を取得
+    weather = wr.getWeatherReport(1)
+    # 返信メッセージ
+    messages = TextSendMessage(text=('明日の千葉の天気をお知らせします\n{0}').format(weather))
+    line_bot_api.reply_message(event.reply_token,messages)
+
+
 
 def push_message():
 
     # 当日の天気予報を取得
-    weather = wr.getWeatherReport()
+    weather = wr.getWeatherReport(0)
 
     # 全ユーザー取得
     users = session.query(Users).all()
@@ -91,11 +90,23 @@ def push_message():
             session.commit()
 
         messages = TextSendMessage(text=(
-            '{0}さん、おはようございます！\n'\
-            'テスト用のPUSHメッセージです\n\n現在の日時:{1}\n\n本日の千葉の天気\n{2}'
-            ).format(profile.display_name, dt_now.strftime('%Y年%m月%d日 %H:%M:%S'), weather))
+            '{0}さん、おはようございます！\n\n'\
+            '本日の千葉の天気をお知らせします\n{1}'
+            ).format(profile.display_name, weather))
         line_bot_api.push_message(user_id, messages=messages)
 
+def user_all():
+    users = session.query(Users).all()
+    for user in users:
+        print('==============================')
+        print('user_id: ' + user.user_id)
+        print('name: ' + user.name)
+        print('==============================')
+
+def user_insert():
+    row = Users(user_id='U75a1e09719ff2f7e2cbfeaf77ebb3039', name='sekine')
+    session.add(row)
+    session.commit()
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))

@@ -1,7 +1,7 @@
 import requests
 import json
 
-def getWeatherReport():
+def getWeatherReport(day):
     # 千葉県
     # TODO: エリアを個人別で登録できるようにしたい
     area_code = '120000'
@@ -13,7 +13,7 @@ def getWeatherReport():
     areas = json[0]['timeSeries'][0]['areas']
     for area in areas:
         name = area['area']['name']
-        weather = area['weathers'][1]
+        weather = area['weathers'][day]
         report += name + ': ' + weather + '\n'
 
     return report
