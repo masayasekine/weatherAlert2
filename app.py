@@ -108,6 +108,7 @@ def response_message(event):
         messages = TextSendMessage(text=('明日の{0}の天気をお知らせします\n{1}').format(user_area.prefecture_name, weather))
         line_bot_api.reply_message(event.reply_token,messages)
         messages = TextSendMessage(text=('ご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します'))
+        line_bot_api.reply_message(event.reply_token,messages)
     else :
         user.area_code = area.area_code
         session.commit()
@@ -139,6 +140,8 @@ def push_message():
             '{0}さん、おはようございます！\n\n'\
             '本日の{1}の天気をお知らせします\n{2}'
             ).format(profile.display_name, user_area.prefecture_name, weather))
+        line_bot_api.push_message(user_id, messages=messages)
+        messages = TextSendMessage(text=('ご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します'))
         line_bot_api.push_message(user_id, messages=messages)
 
 def user_all():

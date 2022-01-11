@@ -30,6 +30,11 @@ def getPopsReport(area_code):
         name = area['area']['name']
         report += name + '\n'
         for i, pop in enumerate(area['pops']):
+            # 1つめは深夜、3つめ以降は翌日になるので含まない
+            if i == 0:
+                continue
+            if i > 3:
+                break
             report += str((3 + (i * 6))) + ':00 -> ' + pop + '% \n'
     # 最低/最高気温
     tmp_areas = json[0]['timeSeries'][2]['areas']
