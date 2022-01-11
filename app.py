@@ -62,6 +62,23 @@ def followed_message(event):
 @handler.add(MessageEvent, message=TextMessage)
 def response_message(event):
     message = event.message.text
+    profile = line_bot_api.get_profile(event.source.user_id)
+    user = session.query(Users).get(profile.user_id)
+
+    # ユーザーがDBに登録されていない場合は新規登録
+    if user is None:
+        row = Users(user_id=profile.user_id, name=profile.display_name)
+        session.add(row)
+        session.commit()
+    # DBに登録済の場合、情報を更新
+    else:
+        user.user_id = profile.user_id
+        user.name = profile.display_name
+        user.del_flag = False
+        session.commit()
+    # ユーザの地域情報を取得
+    user_area = session.query(Areas).get(user.area_code)
+
     # メッセージが登録県変更かどうか確認
     area = session.query(Areas).filter_by(prefecture_name=event).first()
     if message == '都道府県一覧':
@@ -70,20 +87,16 @@ def response_message(event):
             print(area.prefecture_name + '\n')
     elif area is None:
         # 翌日の天気予報を取得
-        weather = wr.getWeatherReport(1)
+        weather = wr.getWeatherReport(1, user_area.area_code)
         # 返信メッセージ
-        messages = TextSendMessage(text=('明日の千葉の天気をお知らせします\n{0}').format(weather))
+        messages = TextSendMessage(text=('明日の{0}の天気をお知らせします\n{1}').format(user_area.prefecture_name, weather))
         line_bot_api.reply_message(event.reply_token,messages)
         messages = TextSendMessage(text=('ご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します'))
     else :
-        user = session.query(Users).get(event.source.user_id)
         user.area_code = area.area_code
         messages = TextSendMessage(text=('ご登録の都道府県を変更しました。\n変更後:{0}').format(area.prefecture_name))
 
 def push_message():
-
-    # 当日の天気予報を取得
-    weather = wr.getPopsReport()
 
     # 全ユーザー取得
     users = session.query(Users).all()
@@ -97,11 +110,15 @@ def push_message():
         if user.name != profile.display_name:
             user.name = profile.display_name
             session.commit()
+        # ユーザの地域情報を取得
+        user_area = session.query(Areas).get(user.area_code)
 
+        # 当日の天気予報を取得
+        weather = wr.getPopsReport(user.area_code)
         messages = TextSendMessage(text=(
             '{0}さん、おはようございます！\n\n'\
-            '本日の千葉の天気をお知らせします\n{1}'
-            ).format(profile.display_name, weather))
+            '本日の{1}の天気をお知らせします\n{2}'
+            ).format(profile.display_name, user_area.prefecture_name, weather))
         line_bot_api.push_message(user_id, messages=messages)
 
 def user_all():
