@@ -3,10 +3,7 @@ import json
 from assets.database import session
 from assets.models import Areas
 
-def getWeatherReport(day):
-    # 千葉県
-    # TODO: エリアを個人別で登録できるようにしたい
-    area_code = '120000'
+def getWeatherReport(day, area_code):
 
     url = 'https://www.jma.go.jp/bosai/forecast/data/forecast/{0}.json'.format(area_code)
     json = requests.get(url).json()
@@ -20,10 +17,7 @@ def getWeatherReport(day):
 
     return report
 
-def getPopsReport():
-    # 千葉県
-    # TODO: エリアを個人別で登録できるようにしたい
-    area_code = '120000'
+def getPopsReport(area_code):
 
     url = 'https://www.jma.go.jp/bosai/forecast/data/forecast/{0}.json'.format(area_code)
     json = requests.get(url).json()
