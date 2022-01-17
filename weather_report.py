@@ -25,6 +25,9 @@ def getPopsReport(area_code):
     report = '降水確率\n'
     # 降水確率
     pop_areas = json[0]['timeSeries'][1]['areas']
+    print('======降水確率=====')
+    print(pop_areas)
+    print('===================')
 
     for area in pop_areas:
         name = area['area']['name']
@@ -38,6 +41,9 @@ def getPopsReport(area_code):
             report += str((3 + (i * 6))) + ':00 -> ' + pop + '% \n'
     # 最低/最高気温
     tmp_areas = json[0]['timeSeries'][2]['areas']
+    print('======最低/最高気温======')
+    print(tmp_areas)
+    print('========================')
     for area in tmp_areas:
         name = area['area']['name']
         report += name + '\n'
