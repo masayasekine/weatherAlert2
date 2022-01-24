@@ -40,9 +40,6 @@ def callback():
 
 @handler.add(FollowEvent)
 def followed_message(event):
-    # # フォローされた場合にメッセージを送信する(定型文を設定しているのでコメントアウト)
-    # message = TextSendMessage(text='フォローありがとうございます')
-    # line_bot_api.reply_message(event.reply_token, messages=message)
 
     # DB登録処理
     profile = line_bot_api.get_profile(event.source.user_id)
@@ -105,16 +102,13 @@ def response_message(event):
         # 翌日の天気予報を取得
         weather = wr.getWeatherReport(1, user_area.area_code)
         # 返信メッセージ
-        messages = TextSendMessage(text=('明日の{0}の天気をお知らせします\n{1}').format(user_area.prefecture_name, weather))
-        line_bot_api.reply_message(event.reply_token,messages)
-        messages = TextSendMessage(text=('ご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します'))
+        messages = TextSendMessage(text=('明日の{0}の天気をお知らせします\n{1}\n\nご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します').format(user_area.prefecture_name, weather))
         line_bot_api.reply_message(event.reply_token,messages)
     else :
         user.area_code = area.area_code
         session.commit()
         messages = TextSendMessage(text=('ご登録の都道府県を変更しました。\n変更後:{0}').format(area.prefecture_name))
         line_bot_api.reply_message(event.reply_token,messages)
-
 
 
 def push_message():
@@ -140,9 +134,12 @@ def push_message():
             '{0}さん、おはようございます！\n\n'\
             '本日の{1}の天気をお知らせします\n{2}'
             ).format(profile.display_name, user_area.prefecture_name, weather))
-        line_bot_api.push_message(user_id, messages=messages)
-        messages = TextSendMessage(text=('ご登録の都道府県を変更する場合、都道府県名を入力してください\n例: 東京都、千葉県\n\n「都道府県一覧」と入力頂くことで、登録可能な都道府県一覧を表示します'))
-        line_bot_api.push_message(user_id, messages=messages)
+        try:
+            line_bot_api.push_message(user_id, messages=messages)
+        except:
+            import traceback
+            traceback.print_exc()
+
 
 def user_all():
     users = session.query(Users).all()
