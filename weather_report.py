@@ -42,8 +42,10 @@ def getPopsReport(area_code):
                 break
             report += str((3 + (i * 6))) + ':00 -> ' + pop + '% \n'
     # 最低/最高気温
+    tmp_timeDefines = json[0]['timeSeries'][2]['timeDefines']
     tmp_areas = json[0]['timeSeries'][2]['areas']
     print('======最低/最高気温======')
+    print(tmp_timeDefines)
     print(tmp_areas)
     print('========================')
     for area in tmp_areas:
