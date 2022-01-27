@@ -24,8 +24,10 @@ def getPopsReport(area_code):
 
     report = '降水確率\n'
     # 降水確率
+    timeDefines = json[0]['timeSeries'][1]['timeDefines']
     pop_areas = json[0]['timeSeries'][1]['areas']
     print('======降水確率=====')
+    print(timeDefines)
     print(pop_areas)
     print('===================')
 
